@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-
+import logging
 from nn import NeuralNetwork
 from config import CONFIG
 
@@ -99,15 +99,26 @@ class Player():
 
     
     def think(self, mode, box_lists, agent_position, velocity):
+        """
+        mode example: 'helicopter': 1, 'gravity': 2, 'thrust': 3 / 3
+        box_lists: an array of `BoxList` objects: [[x1, y1], [x2, y2], ...]: default: [config.WIDTH, config.HEIGHT] / config.WIDTH, config.HEIGHT
+        agent_position example: [600, 250]: [x, y] / config.WIDTH, config.HEIGHT
+        velocity example: 7 / config.camera_speed
+        """
 
-        # TODO
-        # mode example: 'helicopter'
-        # box_lists: an array of `BoxList` objects
-        # agent_position example: [600, 250]
-        # velocity example: 7
+        width = CONFIG["WIDTH"]
+        height = CONFIG["HEIGHT"]
+        camera_speed = CONFIG["camera_speed"]
+        n_mode = {
+            'gravity': 1,
+            'helicopter': 2,
+            'thrust': 3
+        }[mode]
 
-        direction = -1
-        return direction
+        box_x, box_y = (box_lists[0].x, box_lists[0].gap_mid) if box_lists else (width, height)
+        _out = self.nn.forward([n_mode / 3, box_x, box_y, agent_position[0], agent_position[1], velocity / camera_speed])
+
+        return 1 if _out >= 0.5 else -1
 
     def collision_detection(self, mode, box_lists, camera):
         if mode == 'helicopter':
