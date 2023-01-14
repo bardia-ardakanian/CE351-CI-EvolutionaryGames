@@ -3,7 +3,7 @@ CONFIG = {
     # DO NOT CHANGE
     'WIDTH': 1280,         # width of the window
     'HEIGHT': 720,         # height of the window
-    'fps': 50,             # frame/second
+    'fps': 120,             # frame/second
     'camera_speed': 8,     # speed of camera
     'box_gap': 9,          # relative gap between box lists
 

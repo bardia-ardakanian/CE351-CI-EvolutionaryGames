@@ -120,8 +120,8 @@ class Player():
                 next_box = box
                 break
 
-        box_x, box_y = (abs(next_box.x - self.pos[0]), abs(next_box.gap_mid - self.pos[1])) if box_lists else (width, height)
-        _out = self.nn.forward([n_mode / 3, box_x, box_y, agent_position[0], agent_position[1], velocity / camera_speed])
+        box_x, box_y = (next_box.x - self.pos[0], next_box.gap_mid - self.pos[1]) if box_lists else (width, height)
+        _out = self.nn.forward([n_mode, box_x, box_y, agent_position[0], agent_position[1], velocity / camera_speed])
 
         return 1 if _out >= 0.5 else -1
 
