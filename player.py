@@ -1,6 +1,5 @@
 import pygame
 import numpy as np
-import logging
 from nn import NeuralNetwork
 from config import CONFIG
 
@@ -100,10 +99,10 @@ class Player():
     
     def think(self, mode, box_lists, agent_position, velocity):
         """
-        mode example: 'helicopter': 1, 'gravity': 2, 'thrust': 3 / 3
-        box_lists: an array of `BoxList` objects: [[x1, y1], [x2, y2], ...]: default: [config.WIDTH, config.HEIGHT] / config.WIDTH, config.HEIGHT
-        agent_position example: [600, 250]: [x, y] / config.WIDTH, config.HEIGHT
-        velocity example: 7 / config.camera_speed
+        mode example: 'helicopter': 1, 'gravity': 2, 'thrust': 3
+        box_lists: an array of `BoxList` objects: [[x1, y1], [x2, y2], ...]
+        agent_position example: [600, 250]
+        velocity example: 7
         """
 
         width = CONFIG["WIDTH"]
@@ -115,7 +114,13 @@ class Player():
             'thrust': 3
         }[mode]
 
-        box_x, box_y = (box_lists[0].x, box_lists[0].gap_mid) if box_lists else (width, height)
+        next_box = None
+        for box in box_lists:
+            if box.x > self.pos[0]:
+                next_box = box
+                break
+
+        box_x, box_y = (abs(next_box.x - self.pos[0]), abs(next_box.gap_mid - self.pos[1])) if box_lists else (width, height)
         _out = self.nn.forward([n_mode / 3, box_x, box_y, agent_position[0], agent_position[1], velocity / camera_speed])
 
         return 1 if _out >= 0.5 else -1
