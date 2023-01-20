@@ -1,3 +1,5 @@
+import os
+import json
 from player import Player
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -17,6 +19,10 @@ class Evolution():
             "min": [],
             "avg": []
         }
+        try:
+            os.remove('plot/records.json')
+        except OSError:
+            pass
 
 
     # calculate fitness of players
@@ -160,9 +166,13 @@ class Evolution():
                 players (list): list of players
         """
         fitnesses = [player.fitness for player in players]
+        self.records["generation"].append(max(fitnesses))
         self.records["max"].append(max(fitnesses))
         self.records["min"].append(min(fitnesses))
         self.records["avg"].append(sum(fitnesses) / len(players))
+
+        with open('plot/records.json', 'w') as f:
+            json.dump(self.records, f)
 
 
     def plot_fitness_history(self) -> None:
