@@ -11,7 +11,11 @@ Helicopter             |  Gravity          |  Thrust
 ![Helicopter](https://github.com/HosseinZaredar/EvolutionaryGames/blob/main/screenshots/helicopter.png?raw=true)  |  ![Gravity](https://github.com/HosseinZaredar/EvolutionaryGames/blob/main/screenshots/gravity.png?raw=true) | ![Thrust](https://github.com/HosseinZaredar/EvolutionaryGames/blob/main/screenshots/thrust.png?raw=true)
 
 ## Contributors
+- [Bardia Ardakanian](https://github.com/bardia-ardakanian)
+- [Keivan Ipchi Hagh](https://github.com/keivanipchihagh)
+
+### Many thanks to dear TAs :)
 - [Hossein Zaredar](https://github.com/HosseinZaredar)
 - [Matin Tavakoli](https://github.com/MatinTavakoli/) <br>
-- Many thanks to [Parnian Rad](https://github.com/Parnian-Rad)
+- [Parnian Rad](https://github.com/Parnian-Rad)
 
