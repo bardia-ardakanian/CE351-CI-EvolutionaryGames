@@ -11,10 +11,12 @@ class Evolution():
         self.mode = mode
         self.records = []
 
+
     # calculate fitness of players
     def calculate_fitness(self, players, delta_xs):
         for i, p in enumerate(players):
             p.fitness = delta_xs[i]
+
 
     def gaussian_noise(self, x: np.ndarray, mu = 0.0, std = 0.1):
         noise = np.random.normal(mu, std, size = x.shape)
@@ -25,6 +27,7 @@ class Evolution():
 
         x_noisy = x + np.vectorize(random_chocie)(noise)
         return x_noisy
+
 
     def mutate(self, child):
 
@@ -53,23 +56,16 @@ class Evolution():
             # new_players = copy.deepcopy(parents[:num_players])
 
             # TODO (additional): a selection method other than `fitness proportionate`
-            parents = self.roulette_wheel_selection(prev_players, num_players)
+            parents = self.q_tournament_selection(prev_players, num_players, 15)
             # TODO (additional): implementing crossover
-            # make sure we have enough parents
-            if num_players % 2 == 1:
-                parents.append(parents[-1])
             
             new_players = []
             for i in range(0, num_players, 2):
                 mother = parents[i]
                 father = parents[i + 1]
                 # crossover
-                # first child
-                # new_players.append(self.crossover_single(mother, father))
-                new_players.append(self.crossover_mask(mother, father))
-                # second child
-                # new_players.append(self.crossover_single(father, mother))
-                new_players.append(self.crossover_mask(father, mother))
+                new_players.append(self.crossover(mother, father)) # child 1
+                new_players.append(self.crossover(father, mother)) # child 2
 
             for player in new_players:
                 if np.random.rand() > 0.3:
@@ -78,52 +74,22 @@ class Evolution():
             return new_players
 
 
-    def crossover_single(self, mother: Player, father: Player) -> Player:
+    def crossover(self, mother: Player, father: Player) -> Player:
         child = copy.deepcopy(mother)
-        wmid = mother.nn.weights[0].size // 2
-        bmid = mother.nn.biases[0].size // 2
 
-        child.nn.weights[0][wmid:] = father.nn.weights[0][wmid:]
-        child.nn.biases[0][bmid:] = father.nn.biases[0][bmid:]
-        
-        child.nn.weights[1][wmid:] = father.nn.weights[1][wmid:]
-        child.nn.biases[1][bmid:] = father.nn.biases[1][bmid:]
-        
-        return child
+        # Weights 1 (horizontal split replacement of mother/father)
+        w0_split_point = mother.nn.weights[0].shape[0] // 2
+        if random.choice([0, 1]) == 0:
+            child.nn.weights[0][:w0_split_point, :] = random.choice([mother, father]).nn.weights[0][:w0_split_point, :]
+        else:
+            child.nn.weights[0][w0_split_point:, :] = random.choice([mother, father]).nn.weights[0][w0_split_point:, :]
 
-
-    def crossover_mask(self, mother: Player, father: Player) -> Player:
-        child = copy.deepcopy(mother)
-        w1mask = np.random.randint(0, 2, size = mother.nn.weights[0].shape)
-        for i in range(mother.nn.weights[0].shape[0]):
-            for j in range(mother.nn.weights[0].shape[1]):
-                if w1mask[i, j] == 1:
-                    child.nn.weights[0][i, j] = mother.nn.weights[0][i, j]
-                else:
-                    child.nn.weights[0][i, j] = father.nn.weights[0][i, j]
-
-        w2mask = np.random.randint(0, 2, size = mother.nn.weights[1].shape)
-        for i in range(mother.nn.weights[1].shape[0]):
-            for j in range(mother.nn.weights[1].shape[1]):
-                if w2mask[i, j] == 1:
-                    child.nn.weights[1][i, j] = mother.nn.weights[1][i, j]
-                else:
-                    child.nn.weights[1][i, j] = father.nn.weights[1][i, j]
-
-        # b1mask = np.random.randint(0, 2, size = mother.nn.biases[0].shape)
-        # for i in range(mother.nn.biases[0].shape[0]):
-        #         if b1mask[i] == 1:
-        #             child.nn.biases[0][i] = mother.nn.biases[0][i]
-        #         else:
-        #             child.nn.biases[0][i] = father.nn.biases[0][i]
-
-
-        # b2mask = np.random.randint(0, 2, size = mother.nn.biases[1].shape)
-        # for i in range(mother.nn.biases[1].shape[0]):
-        #     if b2mask[i] == 1:
-        #         child.nn.biases[1][i] = mother.nn.biases[1][i]
-        #     else:
-        #         child.nn.biases[1][i] = father.nn.biases[1][i]
+        # Weights 2 (vertical split replacement of mother/father)
+        w1_split_point = mother.nn.weights[1].shape[0] // 2
+        if random.choice([0, 1]) == 0:
+            child.nn.weights[1][:, w1_split_point:] = random.choice([mother, father]).nn.weights[1][:, w1_split_point:]
+        else:
+            child.nn.weights[1][:, :w1_split_point] = random.choice([mother, father]).nn.weights[1][:, :w1_split_point]
 
         return child
 
@@ -148,8 +114,20 @@ class Evolution():
 
         return players[:num_players]
 
+
     def k_top_selection(self, players: list, num_players: int):
         return sorted(players, key = lambda x: x.fitness, reverse = True)
+
+
+    def q_tournament_selection(self, players: list, num_players: int, q: int):
+        result = []
+        for i in range(num_players):
+            batch = []
+            for j in range(q):
+                batch.append(np.random.choice(players))
+            result.append(copy.deepcopy(sorted(batch, key=lambda x: x.fitness, reverse=True)[0]))
+        return result
+
 
     def roulette_wheel_selection(self, players: list, num_players: int):
         fitnesses = np.array([p.fitness for p in players])

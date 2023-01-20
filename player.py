@@ -96,6 +96,17 @@ class Player():
             layer_sizes = [6, 20, 1]
         return layer_sizes
 
+
+    def next_box(self, box_lists, agent_position, offset=1):
+        next = None
+        for box in box_lists:
+            if box.x - agent_position[0] > 0:
+                offset -= 1
+                if offset == 0:
+                    next = box
+                    break
+
+        return next
     
     def think(self, mode, box_lists, agent_position, velocity):
         """
@@ -107,23 +118,25 @@ class Player():
 
         width = CONFIG["WIDTH"]
         height = CONFIG["HEIGHT"]
-        camera_speed = CONFIG["camera_speed"]
-        n_mode = {
-            'gravity': 1,
-            'helicopter': 2,
-            'thrust': 3
-        }[mode]
 
-        next_box = None
-        for box in box_lists:
-            if box.x > self.pos[0]:
-                next_box = box
-                break
-
-        box_x, box_y = (next_box.x - self.pos[0], next_box.gap_mid - self.pos[1]) if box_lists else (width, height)
-        _out = self.nn.forward([n_mode, box_x, box_y, agent_position[0], agent_position[1], velocity / camera_speed])
-
-        return 1 if _out >= 0.5 else -1
+        nn_input = []
+        # boxes
+        for i in range(1, 3):
+            next = self.next_box(box_lists, agent_position, i)
+            
+            if next != None:
+                nn_input.append((next.x - agent_position[0])/width)
+                nn_input.append((next.gap_mid - agent_position[1])/height)
+            else:
+                nn_input.append(0)
+                nn_input.append(1)
+        # agent position y
+        nn_input.append(agent_position[1]/height)
+        # velocity
+        nn_input.append(velocity/10)
+        # forward
+        nn_output = self.nn.forward(np.array(nn_input))
+        return 1 if nn_output >= 0.5 else -1
 
     def collision_detection(self, mode, box_lists, camera):
         if mode == 'helicopter':
