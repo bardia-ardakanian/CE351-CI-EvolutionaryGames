@@ -123,14 +123,6 @@ class Evolution():
         players = self.roulette_wheel_selection(players, num_players)
 
         # TODO (additional): plotting
-        # self.records.append({
-        #     'generation': len(self.records),
-        #     'best_fitness': players[0].fitness,
-        #     'worst_fitness': players[-1].fitness,
-        #     'avg_fitness': np.mean([p.fitness for p in players])
-        # })
-
-        # print(self.records[-1])
 
         self.save_fitness_history(players)  # Save evo
         return players[:num_players]
@@ -166,7 +158,7 @@ class Evolution():
                 players (list): list of players
         """
         fitnesses = [player.fitness for player in players]
-        self.records["generation"].append(max(fitnesses))
+        self.records["generation"].append(len(self.records["max"]))
         self.records["max"].append(max(fitnesses))
         self.records["min"].append(min(fitnesses))
         self.records["avg"].append(sum(fitnesses) / len(players))
