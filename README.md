@@ -14,7 +14,7 @@ Helicopter             |  Gravity          |  Thrust
 - [Bardia Ardakanian](https://github.com/bardia-ardakanian)
 - [Keivan Ipchi Hagh](https://github.com/keivanipchihagh)
 
-### Many thanks to dear TAs :)
+### Many Thanks To
 - [Hossein Zaredar](https://github.com/HosseinZaredar)
 - [Matin Tavakoli](https://github.com/MatinTavakoli/) <br>
 - [Parnian Rad](https://github.com/Parnian-Rad)
